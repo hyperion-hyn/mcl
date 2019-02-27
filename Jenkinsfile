@@ -7,9 +7,9 @@ pipeline {
 
   }
   stages {
-    stage('Install Dependencies') {
+    stage('Dependencies') {
       steps {
-        sh 'apt-get install -y libssl-dev libgmp-dev gcc g++ cmake make cpio xz-utils'
+        sh 'apt-get update && apt-get install -y libssl-dev libgmp-dev gcc g++ cmake make cpio xz-utils'
       }
     }
     stage('Configure') {
