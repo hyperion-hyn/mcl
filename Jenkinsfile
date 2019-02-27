@@ -9,12 +9,15 @@ pipeline {
   stages {
     stage('Dependencies') {
       steps {
-        sh 'apt-get update && apt-get install -y libssl-dev libgmp-dev gcc g++ cmake make cpio xz-utils'
+        sh '''apt-get update -y
+apt-get install -y libssl-dev libgmp-dev gcc g++ cmake make cpio xz-utils'''
       }
     }
     stage('Configure') {
       steps {
-        sh '''mkdir build && cd build && cmake ..
+        sh '''mkdir build
+cd build
+cmake ..
 '''
       }
     }
@@ -25,10 +28,10 @@ pipeline {
     }
     stage('Install') {
       steps {
-        sh '''list() { (
-    cd /usr/local && \\
-    find . | sed -n \'s@^\\./@@p\' | sort
-) }
+        sh '''list() {
+    (cd /usr/local && exec find .) | \\
+    sed -n \'s@^\\./@@p\' | sort
+}
 list > before.txt
 make install
 list > after.txt
@@ -39,7 +42,7 @@ comm -13 before.txt after.txt > installed.txt'''
         steps {
           sh '''sort -r -t/ installed.txt | \\
 tr \'\\n\' \'\\0\' | \\
-cpio -o0 -Hnewc | \\
+cpio -o0 -Hnewc -v | \\
 xz -9 > mcl.cpio.xz'''
         }
       }
