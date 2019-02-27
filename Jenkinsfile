@@ -2,13 +2,14 @@ pipeline {
   agent {
     docker {
       image 'ubuntu:18.04'
+      args '-u 0:0'
     }
 
   }
   stages {
     stage('Install Dependencies') {
       steps {
-        sh 'sudo apt-get install -y libssl-dev libgmp-dev gcc g++ cmake make cpio xz-utils'
+        sh 'apt-get install -y libssl-dev libgmp-dev gcc g++ cmake make cpio xz-utils'
       }
     }
     stage('Configure') {
@@ -26,10 +27,10 @@ pipeline {
       steps {
         sh '''list() { (
     cd /usr/local && \\
-    sudo find . | sed -n \'s@^\\./@@p\' | sort
+    find . | sed -n \'s@^\\./@@p\' | sort
 ) }
 list > before.txt
-sudo make install
+make install
 list > after.txt
 comm -13 before.txt after.txt > installed.txt'''
         }
@@ -38,7 +39,7 @@ comm -13 before.txt after.txt > installed.txt'''
         steps {
           sh '''sort -r -t/ installed.txt | \\
 tr \'\\n\' \'\\0\' | \\
-sudo cpio -o0 -Hnewc | \\
+cpio -o0 -Hnewc | \\
 xz -9 > mcl.cpio.xz'''
         }
       }
