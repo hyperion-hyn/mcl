@@ -30,7 +30,7 @@ make DESTDIR=`pwd`/destdir install
     stage('Package') {
       steps {
         sh '''cd build
-find -d destdir/usr/local | \\
+find destdir/usr/local -depth | \\
 sed -n \'s@^destdir/usr/local/@@p\' | \\
 tr \'\\n\' \'\\0\' | \\
 cpio -o0 -Hnewc -v | \\
