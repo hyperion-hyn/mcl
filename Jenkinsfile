@@ -1,24 +1,16 @@
 pipeline {
   agent {
     docker {
-      image 'ubuntu:18.04'
-      args '-u 0:0'
+      image 'harmonyone/harmony-jenkins-agent:latest'
     }
 
   }
   stages {
-    stage('Dependencies') {
-      steps {
-        sh '''apt-get update -y
-apt-get install -y libssl-dev libgmp-dev gcc g++ cmake make cpio xz-utils'''
-      }
-    }
     stage('Configure') {
       steps {
-        sh '''mkdir build
+        sh '''mkdir -p build
 cd build
-cmake ..
-'''
+cmake ..'''
       }
     }
     stage('Build') {
@@ -28,23 +20,19 @@ cmake ..
     }
     stage('Install') {
       steps {
-        sh '''list() {
-    (cd /usr/local && exec find .) | \\
-    sed -n \'s@^\\./@@p\' | sort
-}
-list > before.txt
-make install
-list > after.txt
-comm -13 before.txt after.txt > installed.txt'''
-        }
+        sh '''rm -rf destdir
+make DESTDIR=`pwd`/destdir install
+'''
       }
-      stage('Package') {
-        steps {
-          sh '''sort -r -t/ installed.txt | \\
+    }
+    stage('Package') {
+      steps {
+        sh '''find -d destdir/usr/local | \\
+sed -n \'s@^destdir/usr/local/@@p\' | \\
 tr \'\\n\' \'\\0\' | \\
 cpio -o0 -Hnewc -v | \\
 xz -9 > mcl.cpio.xz'''
-        }
       }
     }
   }
+}
