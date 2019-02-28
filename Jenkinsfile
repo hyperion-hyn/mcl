@@ -37,5 +37,10 @@ tr \'\\n\' \'\\0\' | \\
 xz -9 > mcl.cpio.xz'''
       }
     }
+    stage('Save Build') {
+      steps {
+        archiveArtifacts 'build/**'
+      }
+    }
   }
 }
