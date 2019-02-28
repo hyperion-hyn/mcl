@@ -33,7 +33,7 @@ make DESTDIR=`pwd`/destdir install
 find destdir/usr/local -depth | \\
 sed -n \'s@^destdir/usr/local/@@p\' | \\
 tr \'\\n\' \'\\0\' | \\
-cpio -o0 -Hnewc -v | \\
+(cd destdir/usr/local && exec cpio -o0 -Hnewc -v) | \\
 xz -9 > mcl.cpio.xz'''
       }
     }
