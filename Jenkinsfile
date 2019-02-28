@@ -15,19 +15,22 @@ cmake ..'''
     }
     stage('Build') {
       steps {
-        sh 'make'
+        sh '''cd build
+make'''
       }
     }
     stage('Install') {
       steps {
-        sh '''rm -rf destdir
+        sh '''cd build
+rm -rf destdir
 make DESTDIR=`pwd`/destdir install
 '''
       }
     }
     stage('Package') {
       steps {
-        sh '''find -d destdir/usr/local | \\
+        sh '''cd build
+find -d destdir/usr/local | \\
 sed -n \'s@^destdir/usr/local/@@p\' | \\
 tr \'\\n\' \'\\0\' | \\
 cpio -o0 -Hnewc -v | \\
