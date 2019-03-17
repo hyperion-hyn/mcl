@@ -6,36 +6,19 @@ pipeline {
 
   }
   stages {
-    stage('Configure') {
+    stage('Build & Install') {
       steps {
         sh '''
-          mkdir -p build
-          cd build
-          cmake ..
-        '''
-      }
-    }
-    stage('Build') {
-      steps {
-        sh '''
-          cd build
-          make
-        '''
-      }
-    }
-    stage('Install') {
-      steps {
-        sh '''
-          cd build
           rm -rf destdir
-          make DESTDIR=`pwd`/destdir install
+          install -d destdir/usr/local/include
+          install -d destdir/usr/local/lib
+          make PREFIX=`pwd`/destdir/usr/local install
         '''
       }
     }
     stage('Package') {
       steps {
         sh '''
-          cd build
           find destdir/usr/local -depth | \\
             sed -n \'s@^destdir/usr/local/@@p\' | \\
             tr \'\\n\' \'\\0\' | \\
@@ -46,7 +29,7 @@ pipeline {
     }
     stage('Save Build') {
       steps {
-        archiveArtifacts 'build/**'
+        archiveArtifacts '**'
       }
     }
   }
